@@ -4,6 +4,16 @@
 
 ---
 
+## [0.2.7] - 2026-02-03
+
+*Twinkle twinkle little star, how I wonder what you are.*
+
+### Added
+- Custom app icon: crescent moon and stars on night sky
+- Adaptive icon works on both phone and watch launchers
+
+---
+
 ## [0.2.0] - 2026-02-02
 
 *Now I lay me down to sleep, my watch will help my habits keep.*
