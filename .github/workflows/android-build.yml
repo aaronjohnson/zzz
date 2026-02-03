@@ -36,13 +36,20 @@ jobs:
       - name: Build Watch APK
         run: |
           cd android
-          ./gradlew :wear:assembleRelease
+          ./gradlew :wear:clean :wear:assembleRelease
+
+      - name: List build outputs
+        run: |
+          echo "=== Phone APK ==="
+          ls -la build/app/outputs/flutter-apk/ || true
+          echo "=== Watch APK ==="
+          ls -la wear/build/outputs/apk/release/ || true
 
       - name: Upload APKs to release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             build/app/outputs/flutter-apk/app-release.apk
-            android/wear/build/outputs/apk/release/wear-release.apk
+            wear/build/outputs/apk/release/wear-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
