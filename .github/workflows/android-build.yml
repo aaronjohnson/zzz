@@ -42,8 +42,8 @@ jobs:
         run: |
           echo "=== Phone APK ==="
           ls -la build/app/outputs/flutter-apk/ || true
-          echo "=== Watch APK ==="
-          ls -la wear/build/outputs/apk/release/ || true
+          echo "=== Find all APKs ==="
+          find . -name "*.apk" -type f 2>/dev/null | head -20
 
       - name: Upload APKs to release
         uses: softprops/action-gh-release@v1
