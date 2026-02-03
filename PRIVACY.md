@@ -39,13 +39,26 @@ If you uninstall the app, your data is gone. That's a feature.
 
 ## Phase 2: Encryption at Rest
 
-Add SQLCipher for encrypted local storage.
+SQLCipher encryption for mobile (Android/iOS). Desktop platforms use unencrypted local storage with user notice.
 
+### Mobile (Implemented)
+
+- SQLCipher with device-derived key via `flutter_secure_storage`
 - Protects against device theft/loss
 - Protects against other apps accessing the database
-- User-controlled key (or device-derived)
+- First-run dialog explains protections to users
 
 **Trust pitch:** "Your sleep data is encrypted. Even if someone gets your phone, they can't read it."
+
+### Desktop (Future)
+
+Desktop encryption requires different tooling (`sqlcipher_flutter_libs` + custom FFI). Current approach:
+
+- Clear first-run notice that data is not encrypted
+- Feature request contact for users who want this
+- Acceptable for development/testing use case
+
+Desktop encryption is a stretch goal pending user demand.
 
 ---
 
@@ -83,6 +96,19 @@ Differential privacy adds calibrated noise so individual responses can't be dete
 - Stop collecting when budget exhausted
 - Transparent reporting: "This month, your contributions helped us learn..."
 - User controls: opt-out anytime, see what was shared
+
+### Minimum Sample Sizes
+
+Differential privacy requires enough users that noise doesn't destroy signal. Don't build network infrastructure for imaginary scale.
+
+| Insight Type | Minimum Users | Why |
+|--------------|---------------|-----|
+| Binary rates (% completed habit X) | ~100 | Noise overwhelms signal below this |
+| Rankings (most skipped habits) | ~500 | Need enough variance |
+| Cohort trends (improvement over time) | ~1,000 | Temporal noise compounds |
+| Subgroup analysis (age, patterns) | ~5,000+ | Slicing reduces n quickly |
+
+**Practical approach:** Ship local-only. Measure organic growth. Add opt-in analytics only when daily active users exceed threshold. Apple's differential privacy research suggests minimum 1,000 DAU before collecting even basic randomized response data.
 
 ---
 

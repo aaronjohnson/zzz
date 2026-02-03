@@ -1,5 +1,8 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
+import 'package:sqflite_common/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' as sqlcipher;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/habit.dart';
 import '../models/daily_log.dart';
 import 'seed_data.dart';
@@ -7,8 +10,16 @@ import 'seed_data.dart';
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
+  static const _keyName = 'zzz_db_key';
+  static const _storage = FlutterSecureStorage();
 
   DatabaseHelper._init();
+
+  /// Returns true if running on a platform with encrypted storage
+  static bool get isEncrypted =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+       defaultTargetPlatform == TargetPlatform.iOS);
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -16,15 +27,38 @@ class DatabaseHelper {
     return _database!;
   }
 
+  Future<String> _getOrCreateKey() async {
+    var key = await _storage.read(key: _keyName);
+    if (key == null) {
+      // Generate a random 32-character key
+      final bytes = List.generate(32, (_) => DateTime.now().microsecondsSinceEpoch % 256);
+      key = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      await _storage.write(key: _keyName, value: key);
+    }
+    return key;
+  }
+
   Future<Database> _initDB(String fileName) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, fileName);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    if (isEncrypted) {
+      // Mobile: use SQLCipher with encryption
+      final password = await _getOrCreateKey();
+      return await sqlcipher.openDatabase(
+        path,
+        version: 1,
+        password: password,
+        onCreate: _createDB,
+      );
+    } else {
+      // Desktop/Web: use unencrypted database (FFI initialized in main.dart)
+      return await openDatabase(
+        path,
+        version: 1,
+        onCreate: _createDB,
+      );
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {

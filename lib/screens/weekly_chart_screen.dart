@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../models/habit.dart';
+import '../widgets/privacy_notice_dialog.dart';
 import 'day_detail_screen.dart';
 
 class WeeklyChartScreen extends StatefulWidget {
@@ -23,6 +24,9 @@ class _WeeklyChartScreenState extends State<WeeklyChartScreen> {
     super.initState();
     _weekStart = _getWeekStart(DateTime.now());
     _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PrivacyNoticeDialog.showIfNeeded(context);
+    });
   }
 
   DateTime _getWeekStart(DateTime date) {
