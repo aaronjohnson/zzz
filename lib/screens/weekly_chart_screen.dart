@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../models/habit.dart';
+import '../services/wear_channel.dart';
+import '../widgets/phone_down_dialog.dart';
 import '../widgets/privacy_notice_dialog.dart';
 import 'day_detail_screen.dart';
 
@@ -76,6 +78,20 @@ class _WeeklyChartScreenState extends State<WeeklyChartScreen> {
       _weekLogs[date] ??= {};
       _weekLogs[date]![habitId] = !currentValue;
     });
+    // Sync to watch
+    WearChannel.sendHabitsToWatch();
+
+    // Check if all habits complete for today
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    if (date == today && !currentValue) {
+      final todayLogs = _weekLogs[today] ?? {};
+      final completedCount = todayLogs.values.where((v) => v).length;
+      PhoneDownDialog.showIfAllComplete(
+        context: context,
+        completedCount: completedCount,
+        totalCount: _habits.length,
+      );
+    }
   }
 
   void _openDayDetail(String date) {

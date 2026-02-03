@@ -122,6 +122,26 @@ Differential privacy requires enough users that noise doesn't destroy signal. Do
 
 ---
 
+---
+
+## Phase 4: Watch Companion (Planned)
+
+Wear OS companion app for quick habit check-offs from wrist.
+
+### Architecture
+
+- Phone app: full UI, database, encryption (source of truth)
+- Watch app: today's habits only, tap to toggle
+- Sync: local Bluetooth/WiFi via Wear Data Layer API (no cloud)
+
+### Privacy Implications
+
+- Data syncs device-to-device, never touches network
+- Watch doesn't store persistent data (stateless UI)
+- Encryption remains on phone side
+
+---
+
 ## References
 
 - [Differential Privacy](https://en.wikipedia.org/wiki/Differential_privacy) - Mathematical framework

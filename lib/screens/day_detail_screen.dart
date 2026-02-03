@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../models/habit.dart';
+import '../services/wear_channel.dart';
+import '../widgets/phone_down_dialog.dart';
 
 class DayDetailScreen extends StatefulWidget {
   final String date;
@@ -42,6 +44,19 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
     setState(() {
       _dayLogs[habitId] = !currentValue;
     });
+    // Sync to watch
+    WearChannel.sendHabitsToWatch();
+
+    // Check if all habits complete for today
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    if (widget.date == today && !currentValue) {
+      final completedCount = _dayLogs.values.where((v) => v).length;
+      PhoneDownDialog.showIfAllComplete(
+        context: context,
+        completedCount: completedCount,
+        totalCount: _habits.length,
+      );
+    }
   }
 
   @override

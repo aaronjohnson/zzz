@@ -4,6 +4,18 @@
 
 ---
 
+## [0.2.0] - 2026-02-02
+
+*Now I lay me down to sleep, my watch will help my habits keep.*
+
+### Added
+- Kotlin Compose companion app for Wear OS (Samsung Galaxy Watch)
+- Phone-to-watch sync via Data Layer API (Bluetooth/WiFi, no cloud)
+- Daily bedtime notification reminder (default 10 PM)
+- "Phone down" dialog when all habits checked - auto-closes after 5 seconds
+
+---
+
 ## [0.1.0] - 2026-02-02
 
 *Hush little data, don't say a word*
@@ -21,9 +33,3 @@
 - No accounts, no servers, no telemetry
 - Uninstall and it's gone forever
 - See [PRIVACY.md](PRIVACY.md) for the full architecture
-
----
-
-## [Unreleased]
-
-Laying down to sleep.

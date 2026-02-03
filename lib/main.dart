@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'screens/weekly_chart_screen.dart';
+import 'services/notification_service.dart';
+import 'services/wear_channel.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize database factory based on platform
@@ -17,6 +19,12 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   }
   // Android/iOS use native sqflite - no initialization needed
+
+  // Initialize notifications (schedules daily bedtime reminder)
+  await NotificationService.initialize();
+
+  // Initialize watch communication on Android
+  await WearChannel.initialize();
 
   runApp(const SleepHygieneApp());
 }
