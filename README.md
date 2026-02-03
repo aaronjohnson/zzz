@@ -19,6 +19,12 @@ A simple Flutter app for tracking daily sleep hygiene habits. Like a digital cli
 | Wind-down | Screen-free hour, Relaxation routine |
 | Daytime | Morning light, Exercise, Limited naps |
 
+## Privacy
+
+Your sleep data never leaves your device. No accounts, no sync, no telemetry.
+
+See [PRIVACY.md](PRIVACY.md) for the full privacy architecture.
+
 ## Building
 
 ```bash
