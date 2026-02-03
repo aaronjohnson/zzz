@@ -30,12 +30,19 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build APK
+      - name: Build Phone APK
         run: flutter build apk --release
 
-      - name: Upload APK to release
+      - name: Build Watch APK
+        run: |
+          cd android
+          ./gradlew :wear:assembleRelease
+
+      - name: Upload APKs to release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/app/outputs/flutter-apk/app-release.apk
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/wear/outputs/apk/release/wear-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
