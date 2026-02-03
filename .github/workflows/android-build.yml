@@ -4,14 +4,24 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      build_phone:
+        description: 'Build phone APK'
+        type: boolean
+        default: true
+      build_watch:
+        description: 'Build watch APK'
+        type: boolean
+        default: true
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  phone:
+    if: github.event_name == 'push' || inputs.build_phone
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -33,23 +43,74 @@ jobs:
       - name: Build Phone APK
         run: flutter build apk --release
 
+      - name: Upload phone APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  watch:
+    if: github.event_name == 'push' || inputs.build_watch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
       - name: Build Watch APK
         run: |
           cd android
-          ./gradlew :wear:clean :wear:assembleRelease
+          ./gradlew :wear:assembleRelease
 
-      - name: List build outputs
-        run: |
-          echo "=== Phone APK ==="
-          ls -la build/app/outputs/flutter-apk/ || true
-          echo "=== Find all APKs ==="
-          find . -name "*.apk" -type f 2>/dev/null | head -20
+      - name: List outputs
+        run: find . -name "*.apk" -type f 2>/dev/null
 
-      - name: Upload APKs to release
+      - name: Upload watch APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: watch-apk
+          path: build/wear/outputs/apk/release/wear-release.apk
+
+  release:
+    needs: [phone, watch]
+    if: always() && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download phone APK
+        if: needs.phone.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: phone-apk
+          path: artifacts/phone
+
+      - name: Download watch APK
+        if: needs.watch.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: watch-apk
+          path: artifacts/watch
+
+      - name: List artifacts
+        run: find artifacts -type f 2>/dev/null || echo "No artifacts"
+
+      - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/app/outputs/flutter-apk/app-release.apk
-            wear/build/outputs/apk/release/wear-release.apk
+            artifacts/phone/app-release.apk
+            artifacts/watch/wear-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
