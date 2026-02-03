@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: watch-apk
-          path: build/wear/outputs/apk/release/wear-release.apk
+          path: build/wear/outputs/apk/release/wear-release-unsigned.apk
 
   release:
     needs: [phone, watch]
@@ -112,6 +112,6 @@ jobs:
         with:
           files: |
             artifacts/phone/app-release.apk
-            artifacts/watch/wear-release.apk
+            artifacts/watch/wear-release-unsigned.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
