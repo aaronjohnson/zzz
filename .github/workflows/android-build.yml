@@ -43,6 +43,6 @@ jobs:
         with:
           files: |
             build/app/outputs/flutter-apk/app-release.apk
-            build/wear/outputs/apk/release/wear-release.apk
+            android/wear/build/outputs/apk/release/wear-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
